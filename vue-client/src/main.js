@@ -6,7 +6,7 @@ const options = { path: '/socket.io/' }; //Options object to pass into SocketIO
 
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: SocketIO('http://localhost:5000', options), //options object is Optional
+  connection: SocketIO('http://localhost:5000/test', options), //options object is Optional
 })
 );
 

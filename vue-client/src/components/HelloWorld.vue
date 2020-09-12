@@ -65,7 +65,8 @@ export default {
   },
   sockets: {
     connect () {
-      alert("Socket connection established");
+      console.log("Socket connection established");
+      console.log(this.$socket);
     },
     my_response (data) {
       console.log('test');
