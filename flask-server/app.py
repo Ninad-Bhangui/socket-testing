@@ -12,6 +12,7 @@ async_mode = None
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
+app.config['MAIN_NAMESPACE'] = '/'
 socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins="*")
 thread = None
 thread_lock = Lock()
@@ -25,10 +26,10 @@ def background_thread():
         count += 1
         socketio.emit('my_response',
                       {'data': 'Server generated event', 'count': count},
-                      namespace='/')
+                      namespace=app.config['MAIN_NAMESPACE'])
         socketio.emit('my_response',
                       {'data': 'Server generated event for test_room', 'count': count},
-                      namespace='/',room="test_room")
+                      namespace=app.config['MAIN_NAMESPACE'],room="test_room")
 
 
 @app.route('/')
@@ -37,21 +38,21 @@ def index():
 
 @app.route('/test_room')
 def test_room_message():
-    socketio.emit('my_response',{'data':'flask generated msg for sid room'},namespace='/')
+    socketio.emit('my_response',{'data':'flask generated msg for sid room'},namespace=app.config['MAIN_NAMESPACE'])
     return jsonify(ok=True)
     
-@socketio.on('room_send',namespace='/')
+@socketio.on('room_send',namespace=app.config['MAIN_NAMESPACE'])
 def room_send(message):
     emit('my_response',{'data':message['data']},namepsace='/',room=message['room'])
 
-@socketio.on('my_event', namespace='/')
+@socketio.on('my_event', namespace=app.config['MAIN_NAMESPACE'])
 def test_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
          {'data': message['data'], 'count': session['receive_count']})
 
 
-@socketio.on('my_broadcast_event', namespace='/')
+@socketio.on('my_broadcast_event', namespace=app.config['MAIN_NAMESPACE'])
 def test_broadcast_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
@@ -59,7 +60,7 @@ def test_broadcast_message(message):
          broadcast=True)
 
 
-@socketio.on('join', namespace='/')
+@socketio.on('join', namespace=app.config['MAIN_NAMESPACE'])
 def join(message):
     join_room(message['room'])
     session['receive_count'] = session.get('receive_count', 0) + 1
@@ -69,7 +70,7 @@ def join(message):
           'count': session['receive_count']})
 
 
-@socketio.on('leave', namespace='/')
+@socketio.on('leave', namespace=app.config['MAIN_NAMESPACE'])
 def leave(message):
     leave_room(message['room'])
     session['receive_count'] = session.get('receive_count', 0) + 1
@@ -78,7 +79,7 @@ def leave(message):
           'count': session['receive_count']})
 
 
-@socketio.on('close_room', namespace='/')
+@socketio.on('close_room', namespace=app.config['MAIN_NAMESPACE'])
 def close(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response', {'data': 'Room ' + message['room'] + ' is closing.',
@@ -87,7 +88,7 @@ def close(message):
     close_room(message['room'])
 
 
-@socketio.on('my_room_event', namespace='/')
+@socketio.on('my_room_event', namespace=app.config['MAIN_NAMESPACE'])
 def send_room_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
@@ -95,7 +96,7 @@ def send_room_message(message):
          room=message['room'])
 
 
-@socketio.on('disconnect_request', namespace='/')
+@socketio.on('disconnect_request', namespace=app.config['MAIN_NAMESPACE'])
 def disconnect_request():
     @copy_current_request_context
     def can_disconnect():
@@ -110,12 +111,12 @@ def disconnect_request():
          callback=can_disconnect)
 
 
-@socketio.on('my_ping', namespace='/')
+@socketio.on('my_ping', namespace=app.config['MAIN_NAMESPACE'])
 def ping_pong():
     emit('my_pong')
 
 
-# @socketio.on('connect', namespace='/')
+# @socketio.on('connect', namespace=app.config['MAIN_NAMESPACE'])
 # def test_connect():
 #     global thread
 #     with thread_lock:
@@ -124,7 +125,7 @@ def ping_pong():
 #     emit('my_response', {'data': 'Connected', 'count': 0})
 
 
-@socketio.on('disconnect', namespace='/')
+@socketio.on('disconnect', namespace=app.config['MAIN_NAMESPACE'])
 def test_disconnect():
     print('Client disconnected', request.sid)
 
