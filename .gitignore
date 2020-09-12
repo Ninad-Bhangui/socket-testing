@@ -1,6 +1,6 @@
 .DS_Store
-client/node_modules
-server/venv
+vue-client/node_modules
+flask-server/venv
 /dist
 
 
