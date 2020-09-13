@@ -36,6 +36,9 @@ def background_thread():
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
+@app.route('/test_response')
+def test_response():
+    return jsonify(ok=True)
 @app.route('/test_room')
 def test_room_message():
     socketio.emit('my_response',{'data':'flask generated msg for sid room'},namespace=app.config['MAIN_NAMESPACE'])
