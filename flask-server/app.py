@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from threading import Lock
 from flask import Flask, render_template, session, request, \
-    copy_current_request_context,jsonify
+    copy_current_request_context, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 
@@ -29,24 +29,31 @@ def background_thread():
                       namespace=app.config['MAIN_NAMESPACE'])
         socketio.emit('my_response',
                       {'data': 'Server generated event for test_room', 'count': count},
-                      namespace=app.config['MAIN_NAMESPACE'],room="test_room")
+                      namespace=app.config['MAIN_NAMESPACE'], room="test_room")
 
 
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
+
 @app.route('/test_response')
 def test_response():
     return jsonify(ok=True)
+
+
 @app.route('/test_room')
 def test_room_message():
-    socketio.emit('my_response',{'data':'flask generated msg for sid room'},namespace=app.config['MAIN_NAMESPACE'])
+    socketio.emit('my_response', {
+                  'data': 'flask generated msg for sid room'}, namespace=app.config['MAIN_NAMESPACE'])
     return jsonify(ok=True)
-    
-@socketio.on('room_send',namespace=app.config['MAIN_NAMESPACE'])
+
+
+@socketio.on('room_send', namespace=app.config['MAIN_NAMESPACE'])
 def room_send(message):
-    emit('my_response',{'data':message['data']},namepsace='/',room=message['room'])
+    emit('my_response', {'data': message['data']},
+         namepsace='/', room=message['room'])
+
 
 @socketio.on('my_event', namespace=app.config['MAIN_NAMESPACE'])
 def test_message(message):
@@ -69,7 +76,7 @@ def join(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('joined_room',
          {'data': 'In rooms: ' + ', '.join(rooms()),
-         'rooms': rooms(),
+          'rooms': rooms(),
           'count': session['receive_count']})
 
 
