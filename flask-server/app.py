@@ -55,21 +55,6 @@ def room_send(message):
          namepsace='/', room=message['room'])
 
 
-@socketio.on('my_event', namespace=app.config['MAIN_NAMESPACE'])
-def test_message(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']})
-
-
-@socketio.on('my_broadcast_event', namespace=app.config['MAIN_NAMESPACE'])
-def test_broadcast_message(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         broadcast=True)
-
-
 @socketio.on('join', namespace=app.config['MAIN_NAMESPACE'])
 def join(message):
     join_room(message['room'])

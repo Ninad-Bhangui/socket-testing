@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <!-- <button @click="send_to_socket()">Click me to send to socket server!!</button><br> -->
-
+    <button @click="echo()">Echo</button><br>
     <input
       type="text"
       placeholder="Enter Room"
@@ -52,6 +52,9 @@ export default {
     msg: String
   },
   methods: {
+    echo () {
+      this.$socket.emit('echo', { data: 'echo from client' });
+    },
     send_to_room () {
       console.log(`Sending to ${this.selected_room}..`);
       this.$socket.emit('room_send', { room: this.selected_room, data: this.message })
@@ -79,7 +82,11 @@ export default {
         if (!this.rooms.includes(room)) {
           this.rooms.push(room);
         }
-      });
+      })
+    },
+    echoed (data) {
+      console.log('got echo!!');
+      this.socketmsg.push(data.data);
     }
   }
 }
