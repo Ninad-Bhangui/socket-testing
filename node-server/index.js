@@ -24,7 +24,7 @@ nsp.on('connection', function (socket) {
     });
 
     socket.on('room_send', (msg) => {
-        nsp.emit('my_response', { data: msg['data'] }, room = msg['room'])
+        nsp.to(msg['room']).emit('my_response', { data: msg['data'] })
     });
 
     socket.on('join', (msg) => {
