@@ -9,8 +9,30 @@ app.get('/', function (req, res) {
 });
 
 nsp.on('connection', function (socket) {
-    socket.on('chat message', function (msg) {
+    console.log('a user connected');
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+
+    socket.on('chat message', (msg) => {
         nsp.emit('chat message', msg);
+    });
+
+    socket.on('echo', (msg) => {
+        console.log('got echo!');
+        nsp.emit('echoed', { data: 'echo!' });
+    });
+
+    socket.on('room_send', (msg) => {
+        nsp.emit('my_response', { data: msg['data'] }, room = msg['room'])
+    });
+
+    socket.on('join', (msg) => {
+        console.log(`Joining room ${msg['room']}`)
+        socket.join(msg['room']);
+        rooms = Object.keys(socket.rooms)
+        console.log(`In rooms ${rooms}`)
+        nsp.emit('joined_room', { data: `In rooms ${rooms.join()}`, rooms: rooms });
     });
 });
 
